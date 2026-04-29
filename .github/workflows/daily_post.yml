@@ -26,7 +26,7 @@ jobs:
 
       - name: Generate blog post with AI
         run: |
-          python generate_post.py --topic "编程中的小确幸"
+          python generate_post.py
         env:
           DASHSCOPE_API_KEY: ${{ secrets.DASHSCOPE_API_KEY }}
 
