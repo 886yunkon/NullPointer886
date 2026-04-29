@@ -2,20 +2,15 @@
 import os
 import sys
 import argparse
-import requests
 from datetime import datetime
 from pathlib import Path
+from openai import OpenAI
 
-DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API_KEY")
+DASHSCOPE_API_KEY = os.getenv("DASHSCOPE_API_KEY")
 
-def call_deepseek(topic: str) -> str:
-    if not DEEPSEEK_API_KEY:
-        raise Exception("❌ 未设置 DEEPSEEK_API_KEY 环境变量")
-
-    headers = {
-        "Authorization": f"Bearer {DEEPSEEK_API_KEY}",
-        "Content-Type": "application/json",
-    }
+def call_qwen(topic: str) -> str:
+    if not DASHSCOPE_API_KEY:
+        raise Exception("❌ 未设置 DASHSCOPE_API_KEY 环境变量")
 
     # =================== 请在这里修改你的人设 ===================
     prompt = f"""
@@ -36,24 +31,20 @@ def call_deepseek(topic: str) -> str:
 """
     # ========================================================
 
-    payload = {
-        "model": "deepseek-chat",
-        "messages": [{"role": "user", "content": prompt}],
-        "temperature": 0.7,
-        "max_tokens": 1500,
-    }
-
-    response = requests.post(
-        "https://api.deepseek.com/v1/chat/completions",
-        headers=headers,
-        json=payload,
-        timeout=60,
-    )
-
-    if response.status_code != 200:
-        raise Exception(f"❌ API 调用失败: {response.text}")
-
-    return response.json()["choices"][0]["message"]["content"]
+    try:
+        client = OpenAI(
+            api_key=DASHSCOPE_API_KEY,
+            base_url="https://dashscope.aliyuncs.com/compatible-mode/v1",
+        )
+        completion = client.chat.completions.create(
+            model="qwen-max",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.7,
+            max_tokens=1500,
+        )
+        return completion.choices[0].message.content
+    except Exception as e:
+        raise Exception(f"❌ 阿里云API调用失败: {str(e)}")
 
 def save_post(content: str, topic: str) -> str:
     today = datetime.now().strftime("%Y-%m-%d")
@@ -77,7 +68,7 @@ def main():
 
     try:
         print(f"📝 开始生成文章，主题：{args.topic}")
-        content = call_deepseek(args.topic)
+        content = call_qwen(args.topic)   # 调用阿里云版本
         save_post(content, args.topic)
     except Exception as e:
         print(e)
