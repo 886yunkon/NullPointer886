@@ -68,7 +68,7 @@ def main():
 
     try:
         print(f"📝 开始生成文章，主题：{args.topic}")
-        content = call_qwen(args.topic)   # 调用阿里云版本
+        content = call_qwen(args.topic)
         save_post(content, args.topic)
     except Exception as e:
         print(e)
