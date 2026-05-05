@@ -1,8 +1,8 @@
 name: 每日 AI 博客创作
 
 on:
-  schedule:
-    - cron: '0 23 * * *'
+  #schedule:
+  #  - cron: '0 23 * * *'
   workflow_dispatch:
 
 jobs:
